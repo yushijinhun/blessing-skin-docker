@@ -107,7 +107,6 @@ fi
 
 if [ "$GENERATE_KEYS" = true ]; then
 	pushd "$WWW_DIR" > /dev/null
-	echo "Generating new salt & app_key..."
 	php artisan salt:random
 	php artisan key:generate
 	popd > /dev/null
@@ -117,9 +116,7 @@ if [ "$DISABLE_SETUP_PASSWORD" != "true" ];then
 	setup-password generate
 fi
 
-echo "Starting..."
 function onexit() {
-	echo "Stopping..."
 	killall -s SIGINT php-fpm7
 }
 php-fpm7
