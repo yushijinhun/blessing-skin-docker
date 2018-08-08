@@ -19,10 +19,11 @@ mkdir -p build/src
 git --git-dir=upstream --work-tree=build/src checkout "$revision" -- .
 
 cp -r src/* build/
-sudo docker build --pull -t "$image" $DOCKER_OPTS build
+sudo docker build -t "$image" $DOCKER_OPTS build
 
-mkdir -p images
-image_save="images/$image.tar.xz"
-sudo docker save "$image" | xz -9 > "images/$image.tar.xz"
-
-echo "Image $image is built and saved to $image_save"
+if [[ "$SKIP_BUNDLING" != "true" ]]; then
+	mkdir -p images
+	image_save="images/$revision.tar.xz"
+	sudo docker save "$image" | xz -9 > "$image_save"
+	echo "Image $image is built and saved to $image_save"
+fi

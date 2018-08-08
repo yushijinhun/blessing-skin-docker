@@ -73,9 +73,9 @@ RUN    NGINX_VERSION_ALPINE=1.14.0-r0 \
                    php7-xsl=$PHP_VERSION_ALPINE \
                php7-opcache=$PHP_VERSION_ALPINE \
                    php7-zip=$PHP_VERSION_ALPINE
-COPY tools/nginx-blessing-skin-server.conf /etc/nginx/conf.d/blessing-skin-server.conf
-COPY tools/entrypoint.sh /opt/blessing-skin-server/entrypoint.sh
 COPY --from=builder /blessing-skin-server /var/www/blessing-skin-server
+COPY nginx-blessing-skin-server.conf /etc/nginx/conf.d/blessing-skin-server.conf
+COPY opt /opt/blessing-skin-server
 RUN mkdir -p /var/run/nginx \
  && rm /etc/nginx/conf.d/default.conf \
  && echo 'daemon off;' >> /etc/nginx/nginx.conf \
@@ -92,8 +92,7 @@ RUN mkdir -p /var/run/nginx \
     > /var/www/blessing-skin-server/.env.docker \
  && chmod 755 /var/www/blessing-skin-server -R \
  && chmod -x+X /var/www/blessing-skin-server -R \
- && chown www:www /var/www/blessing-skin-server -R \
- && chmod 755 /opt/blessing-skin-server/entrypoint.sh
+ && chown www:www /var/www/blessing-skin-server -R
 VOLUME [ "/var/lib/blessing-skin-server" ]
 EXPOSE 80/tcp
 CMD [ "/opt/blessing-skin-server/entrypoint.sh" ]
