@@ -34,10 +34,22 @@
 # ├── logs
 # │   └── blessing-skin-server
 # ├── plugins
+# ├── setup-password
 # └── .env
 #
 
 set -e
+
+while [[ $# -gt 0 ]]; do
+	option=$1
+	shift
+	case $option in
+		--disable-setup-password)
+			DISABLE_SETUP_PASSWORD=true
+			;;
+	esac
+done
+
 
 WWW_DIR="/var/www/blessing-skin-server"
 DATA_DIR="/var/lib/blessing-skin-server"
@@ -99,6 +111,10 @@ if [ "$GENERATE_KEYS" = true ]; then
 	php artisan salt:random
 	php artisan key:generate
 	popd > /dev/null
+fi
+
+if [ "$DISABLE_SETUP_PASSWORD" != "true" ];then
+	setup-password generate
 fi
 
 echo "Starting..."
