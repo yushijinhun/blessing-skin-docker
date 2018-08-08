@@ -5,7 +5,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
  && add-apt-repository "deb https://dl.yarnpkg.com/debian/ stable main" \
  &&            COMPOSER_VERSION_UBUNTU=1.6.3-1 \
- &&                YARN_VERSION_UBUNTU=1.7.0-1 \
+ &&                YARN_VERSION_UBUNTU=1.9.4-1 \
  &&                 PHP_VERSION_UBUNTU=7.2.7-0ubuntu0.18.04.2 \
  && apt-get install -y        composer=$COMPOSER_VERSION_UBUNTU \
                                   yarn=$YARN_VERSION_UBUNTU \
@@ -14,7 +14,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
                         php7.2-sqlite3=$PHP_VERSION_UBUNTU \
                              php7.2-gd=$PHP_VERSION_UBUNTU \
                        php7.2-mbstring=$PHP_VERSION_UBUNTU
-COPY . /blessing-skin-server-src
+COPY src /blessing-skin-server-src
 RUN mkdir -p /root/.ssh \
  && echo "Host *\n StrictHostKeyChecking no" >> /root/.ssh/config \
  && cd /blessing-skin-server-src \
@@ -31,7 +31,8 @@ FROM alpine:3.8
 RUN    NGINX_VERSION_ALPINE=1.14.0-r0 \
  &&      PHP_VERSION_ALPINE=7.2.8-r1  \
  &&     BASH_VERSION_ALPINE=4.4.19-r1 \
- && apk add            bash=$BASH_VERSION_ALPINE \
+ && apk add --no-cache \
+                       bash=$BASH_VERSION_ALPINE \
                       nginx=$NGINX_VERSION_ALPINE \
                    php7-fpm=$PHP_VERSION_ALPINE \
               php7-calendar=$PHP_VERSION_ALPINE \
