@@ -50,6 +50,8 @@ TLS_PK="/etc/ssl/private/bs.key"
 TLS_NGINX_CONF_SRC="/opt/blessing-skin-server/nginx-https.conf"
 TLS_NGINX_CONF_TARGET="/etc/blessing-skin-server/nginx.conf.d/https.conf"
 
+NGINX_EXTRA_CONF="/var/lib/blessing-skin-server/nginx/server.conf"
+
 function set_owner() {
 	chown "$PHP_USER:$PHP_USER" "$1"
 }
@@ -111,6 +113,10 @@ if [ -f "$TLS_CERT" ] && [ -f "$TLS_PK" ]; then
 else
 	rm -f "$TLS_NGINX_CONF_TARGET"
 fi
+
+mkdir -p "$(dirname "$NGINX_EXTRA_CONF")"
+touch "$NGINX_EXTRA_CONF"
+set_owner "$NGINX_EXTRA_CONF"
 
 function onexit() {
 	killall -s SIGINT php-fpm7
