@@ -45,6 +45,11 @@ PHP_FPM_SOCKET="/var/run/php-fpm.sock"
 PHP_USER="www"
 NGINX_USER="nginx"
 
+TLS_CERT="/etc/ssl/certs/bs.pem"
+TLS_PK="/etc/ssl/private/bs.key"
+TLS_NGINX_CONF_SRC="/opt/blessing-skin-server/nginx-https.conf"
+TLS_NGINX_CONF_TARGET="/etc/blessing-skin-server/nginx.conf.d/https.conf"
+
 function set_owner() {
 	chown "$PHP_USER:$PHP_USER" "$1"
 }
@@ -98,6 +103,13 @@ if [ "$GENERATE_KEYS" = true ]; then
 	php artisan salt:random
 	php artisan key:generate
 	popd > /dev/null
+fi
+
+if [ -f "$TLS_CERT" ] && [ -f "$TLS_PK" ]; then
+	ln -sf "$TLS_NGINX_CONF_SRC" "$TLS_NGINX_CONF_TARGET"
+	echo "HTTPS enabled."
+else
+	rm -f "$TLS_NGINX_CONF_TARGET"
 fi
 
 function onexit() {

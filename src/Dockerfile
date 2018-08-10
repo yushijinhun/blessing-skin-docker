@@ -79,6 +79,7 @@ COPY opt /opt/blessing-skin-server
 RUN mkdir -p /var/run/nginx \
  && rm /etc/nginx/conf.d/default.conf \
  && echo 'daemon off;' >> /etc/nginx/nginx.conf \
+ && mkdir -p /etc/blessing-skin-server/nginx.conf.d \
  && ln -sf /dev/stdout /var/log/nginx/access.log \
  && ln -sf /dev/stderr /var/log/nginx/error.log \
  && ln -sf /dev/stderr /var/log/php7/error.log \
@@ -86,6 +87,7 @@ RUN mkdir -p /var/run/nginx \
  && sed -i 's/^\s*user\s*=.*$/user = www/g' /etc/php7/php-fpm.d/www.conf \
  && sed -i 's/^\s*group\s*=.*$/group = www/g' /etc/php7/php-fpm.d/www.conf \
  && sed -i 's/^\s*listen\s*=.*$/listen = \/var\/run\/php-fpm.sock/g' /etc/php7/php-fpm.d/www.conf \
+ && sed -i 's/^\s*expose_php\s*=.*$/expose_php = off/g' /etc/php7/php.ini \
  && < /var/www/blessing-skin-server/.env.example \
         sed 's/^\s*DB_CONNECTION\s*=.*$/DB_CONNECTION = sqlite/g' | \
         sed 's/^\s*DB_DATABASE\s*=.*$/DB_DATABASE = \/var\/lib\/blessing-skin-server\/data\/database.db/g' \
@@ -94,6 +96,6 @@ RUN mkdir -p /var/run/nginx \
  && chmod -x+X /var/www/blessing-skin-server -R \
  && chown www:www /var/www/blessing-skin-server -R
 VOLUME [ "/var/lib/blessing-skin-server" ]
-EXPOSE 80/tcp
+EXPOSE 80/tcp 443/tcp
 CMD [ "/opt/blessing-skin-server/entrypoint.sh" ]
 
