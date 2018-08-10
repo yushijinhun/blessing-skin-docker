@@ -74,7 +74,6 @@ RUN    NGINX_VERSION_ALPINE=1.14.0-r0 \
                php7-opcache=$PHP_VERSION_ALPINE \
                    php7-zip=$PHP_VERSION_ALPINE
 COPY --from=builder /blessing-skin-server /var/www/blessing-skin-server
-COPY nginx-blessing-skin-server.conf /etc/nginx/conf.d/blessing-skin-server.conf
 COPY opt /opt/blessing-skin-server
 RUN mkdir -p /var/run/nginx \
  && rm /etc/nginx/conf.d/default.conf \
@@ -97,5 +96,5 @@ RUN mkdir -p /var/run/nginx \
  && chown www:www /var/www/blessing-skin-server -R
 VOLUME [ "/var/lib/blessing-skin-server" ]
 EXPOSE 80/tcp 443/tcp
-CMD [ "/opt/blessing-skin-server/entrypoint.sh" ]
+ENTRYPOINT [ "/opt/blessing-skin-server/entrypoint.sh" ]
 

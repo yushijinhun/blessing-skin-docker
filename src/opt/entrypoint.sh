@@ -39,16 +39,30 @@
 
 set -e
 
+while [[ $# -gt 0 ]]; do
+	option=$1
+	shift
+	case $option in
+		--disable-force-https)
+			DISABLE_FORCE_HTTPS=true
+			;;
+	esac
+done
+
+
 WWW_DIR="/var/www/blessing-skin-server"
 DATA_DIR="/var/lib/blessing-skin-server"
 PHP_FPM_SOCKET="/var/run/php-fpm.sock"
 PHP_USER="www"
 NGINX_USER="nginx"
 
+NGINX_CONF_TARGET="/etc/nginx/conf.d/blessing-skin-server.conf"
+NGINX_CONF_HTTP="/opt/blessing-skin-server/nginx-http.conf"
+NGINX_CONF_HTTPS_FORCE="/opt/blessing-skin-server/nginx-https-force.conf"
+NGINX_CONF_HTTPS="/opt/blessing-skin-server/nginx-https.conf"
+
 TLS_CERT="/etc/ssl/certs/bs.pem"
 TLS_PK="/etc/ssl/private/bs.key"
-TLS_NGINX_CONF_SRC="/opt/blessing-skin-server/nginx-https.conf"
-TLS_NGINX_CONF_TARGET="/etc/blessing-skin-server/nginx.conf.d/https.conf"
 
 NGINX_EXTRA_CONF="/var/lib/blessing-skin-server/nginx/server.conf"
 
@@ -108,10 +122,15 @@ if [ "$GENERATE_KEYS" = true ]; then
 fi
 
 if [ -f "$TLS_CERT" ] && [ -f "$TLS_PK" ]; then
-	ln -sf "$TLS_NGINX_CONF_SRC" "$TLS_NGINX_CONF_TARGET"
-	echo "HTTPS enabled."
+	if [[ "$DISABLE_FORCE_HTTPS" == "true" ]]; then
+		ln -sf "$NGINX_CONF_HTTPS" "$NGINX_CONF_TARGET"
+		echo "HTTPS enabled."
+	else
+		ln -sf "$NGINX_CONF_HTTPS_FORCE" "$NGINX_CONF_TARGET"
+		echo "Force HTTPS enabled."
+	fi
 else
-	rm -f "$TLS_NGINX_CONF_TARGET"
+	ln -sf "$NGINX_CONF_HTTP" "$NGINX_CONF_TARGET"
 fi
 
 mkdir -p "$(dirname "$NGINX_EXTRA_CONF")"
