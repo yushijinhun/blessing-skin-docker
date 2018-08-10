@@ -30,12 +30,10 @@ RUN mkdir -p /root/.ssh \
 FROM alpine:3.8
 RUN    NGINX_VERSION_ALPINE=1.14.0-r0 \
  &&      PHP_VERSION_ALPINE=7.2.8-r1  \
- &&  OPENSSL_VERSION_ALPINE=1.0.2o-r2 \
  &&     BASH_VERSION_ALPINE=4.4.19-r1 \
  && apk add --no-cache \
                        bash=$BASH_VERSION_ALPINE \
                       nginx=$NGINX_VERSION_ALPINE \
-                    openssl=$OPENSSL_VERSION_ALPINE \
                    php7-fpm=$PHP_VERSION_ALPINE \
               php7-calendar=$PHP_VERSION_ALPINE \
                  php7-ctype=$PHP_VERSION_ALPINE \
@@ -81,7 +79,6 @@ COPY opt /opt/blessing-skin-server
 RUN mkdir -p /var/run/nginx \
  && rm /etc/nginx/conf.d/default.conf \
  && echo 'daemon off;' >> /etc/nginx/nginx.conf \
- && mkdir -p /etc/nginx/conf.d/bs \
  && ln -sf /dev/stdout /var/log/nginx/access.log \
  && ln -sf /dev/stderr /var/log/nginx/error.log \
  && ln -sf /dev/stderr /var/log/php7/error.log \
@@ -96,7 +93,7 @@ RUN mkdir -p /var/run/nginx \
  && chmod 755 /var/www/blessing-skin-server -R \
  && chmod -x+X /var/www/blessing-skin-server -R \
  && chown www:www /var/www/blessing-skin-server -R
-ENV PATH="/opt/blessing-skin-server/bin:${PATH}"
 VOLUME [ "/var/lib/blessing-skin-server" ]
 EXPOSE 80/tcp
-ENTRYPOINT [ "/opt/blessing-skin-server/entrypoint.sh" ]
+CMD [ "/opt/blessing-skin-server/entrypoint.sh" ]
+
