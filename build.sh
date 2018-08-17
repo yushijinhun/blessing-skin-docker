@@ -21,6 +21,8 @@ git --git-dir=upstream --work-tree=build/src checkout "$revision" -- .
 cp -r src/* build/
 sudo docker build -t "$image" $DOCKER_OPTS build
 
+sudo docker tag "$image" "yushijinhun/blessing-skin-server:latest"
+
 if [[ "$SKIP_BUNDLING" != "true" ]]; then
 	mkdir -p images
 	image_save="images/$revision.tar.xz"
