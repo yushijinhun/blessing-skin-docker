@@ -80,7 +80,6 @@ RUN rm /etc/php7/php-fpm.d/www.conf \
  && mkdir -p /var/run/nginx \
  && rm /etc/nginx/conf.d/default.conf \
  && echo 'daemon off;' >> /etc/nginx/nginx.conf \
- && mkdir -p /etc/blessing-skin-server/nginx.conf.d \
  && ln -sf /dev/stdout /var/log/nginx/access.log \
  && ln -sf /dev/stderr /var/log/nginx/error.log \
  && adduser -D -g www www \
@@ -94,6 +93,7 @@ RUN rm /etc/php7/php-fpm.d/www.conf \
  && chmod -x+X /var/www/blessing-skin-server -R \
  && chown www:www /var/www/blessing-skin-server -R
 VOLUME [ "/var/lib/blessing-skin-server" ]
-EXPOSE 80/tcp 443/tcp
+EXPOSE 80/tcp
+WORKDIR "/var/www/blessing-skin-server"
 ENTRYPOINT [ "/opt/blessing-skin-server/entrypoint.sh" ]
 
