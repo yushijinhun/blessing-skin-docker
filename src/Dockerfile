@@ -83,7 +83,6 @@ RUN rm /etc/php7/php-fpm.d/www.conf \
  && mkdir -p /etc/blessing-skin-server/nginx.conf.d \
  && ln -sf /dev/stdout /var/log/nginx/access.log \
  && ln -sf /dev/stderr /var/log/nginx/error.log \
- && mkfifo /var/www/blessing-skin-server/storage/logs/laravel.log \
  && adduser -D -g www www \
  && sed -i 's/^\s*expose_php\s*=.*$/expose_php = off/g' /etc/php7/php.ini \
  && < /var/www/blessing-skin-server/.env \

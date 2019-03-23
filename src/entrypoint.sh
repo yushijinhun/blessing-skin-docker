@@ -104,9 +104,7 @@ mkdir -p "$(dirname "$NGINX_EXTRA_CONF")"
 touch "$NGINX_EXTRA_CONF"
 set_owner "$NGINX_EXTRA_CONF"
 
-while true; do
-    cat "/var/www/blessing-skin-server/storage/logs/laravel.log"
-done &
+export LOG_CHANNEL=errorlog
 
 function onexit() {
 	killall -s SIGINT php-fpm7
