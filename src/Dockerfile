@@ -5,8 +5,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
  && add-apt-repository "deb https://dl.yarnpkg.com/debian/ stable main" \
  &&            COMPOSER_VERSION_UBUNTU=1.6.3-1 \
- &&                YARN_VERSION_UBUNTU=1.9.4-1 \
- &&                 PHP_VERSION_UBUNTU=7.2.7-0ubuntu0.18.04.2 \
+ &&                YARN_VERSION_UBUNTU=1.15.2-1 \
+ &&                 PHP_VERSION_UBUNTU=7.2.15-0ubuntu0.18.04.1 \
  && apt-get install -y        composer=$COMPOSER_VERSION_UBUNTU \
                                   yarn=$YARN_VERSION_UBUNTU \
                                 php7.2=$PHP_VERSION_UBUNTU \
@@ -15,21 +15,19 @@ RUN export DEBIAN_FRONTEND=noninteractive \
                              php7.2-gd=$PHP_VERSION_UBUNTU \
                        php7.2-mbstring=$PHP_VERSION_UBUNTU
 COPY src /blessing-skin-server-src
+COPY revision /
 RUN mkdir -p /root/.ssh \
  && echo "Host *\n StrictHostKeyChecking no" >> /root/.ssh/config \
  && cd /blessing-skin-server-src \
- && composer install --no-dev \
- && yarn install \
- && yarn run build \
- && ./node_modules/.bin/gulp zip \
- && unzip /blessing-skin-server-v*.zip -d /blessing-skin-server \
+ && RELEASE_TAG=`cat /revision` ./scripts/release.sh
+RUN unzip /blessing-skin-server-src/blessing-skin-server-*.zip -d /blessing-skin-server \
  && find /blessing-skin-server -name .gitignore -delete \
- && find /blessing-skin-server/storage -name index.html -delete
+ && rm /blessing-skin-server/public/.htaccess /blessing-skin-server/public/web.config
 
 
-FROM alpine:3.8
-RUN    NGINX_VERSION_ALPINE=1.14.0-r0 \
- &&      PHP_VERSION_ALPINE=7.2.8-r1  \
+FROM alpine:3.9.2
+RUN    NGINX_VERSION_ALPINE=1.14.2-r0 \
+ &&      PHP_VERSION_ALPINE=7.2.14-r0 \
  &&     BASH_VERSION_ALPINE=4.4.19-r1 \
  && apk add --no-cache \
                        bash=$BASH_VERSION_ALPINE \
@@ -74,23 +72,25 @@ RUN    NGINX_VERSION_ALPINE=1.14.0-r0 \
                php7-opcache=$PHP_VERSION_ALPINE \
                    php7-zip=$PHP_VERSION_ALPINE
 COPY --from=builder /blessing-skin-server /var/www/blessing-skin-server
-COPY opt /opt/blessing-skin-server
-RUN mkdir -p /var/run/nginx \
+COPY entrypoint.sh /opt/blessing-skin-server/entrypoint.sh
+COPY cfg/php-fpm.conf /etc/php7/php-fpm.conf
+COPY cfg/php-fpm-extra.conf /etc/php7/php-fpm.d/extra.conf
+COPY cfg/nginx-bs.conf /etc/nginx/conf.d/blessing-skin-server.conf
+RUN rm /etc/php7/php-fpm.d/www.conf \
+ && mkdir -p /var/run/nginx \
  && rm /etc/nginx/conf.d/default.conf \
  && echo 'daemon off;' >> /etc/nginx/nginx.conf \
  && mkdir -p /etc/blessing-skin-server/nginx.conf.d \
  && ln -sf /dev/stdout /var/log/nginx/access.log \
  && ln -sf /dev/stderr /var/log/nginx/error.log \
- && ln -sf /dev/stderr /var/log/php7/error.log \
+ && mkfifo /var/www/blessing-skin-server/storage/logs/laravel.log \
  && adduser -D -g www www \
- && sed -i 's/^\s*user\s*=.*$/user = www/g' /etc/php7/php-fpm.d/www.conf \
- && sed -i 's/^\s*group\s*=.*$/group = www/g' /etc/php7/php-fpm.d/www.conf \
- && sed -i 's/^\s*listen\s*=.*$/listen = \/var\/run\/php-fpm.sock/g' /etc/php7/php-fpm.d/www.conf \
  && sed -i 's/^\s*expose_php\s*=.*$/expose_php = off/g' /etc/php7/php.ini \
- && < /var/www/blessing-skin-server/.env.example \
+ && < /var/www/blessing-skin-server/.env \
         sed 's/^\s*DB_CONNECTION\s*=.*$/DB_CONNECTION = sqlite/g' | \
         sed 's/^\s*DB_DATABASE\s*=.*$/DB_DATABASE = \/var\/lib\/blessing-skin-server\/data\/database.db/g' \
     > /var/www/blessing-skin-server/.env.docker \
+ && rm /var/www/blessing-skin-server/.env \
  && chmod 755 /var/www/blessing-skin-server -R \
  && chmod -x+X /var/www/blessing-skin-server -R \
  && chown www:www /var/www/blessing-skin-server -R

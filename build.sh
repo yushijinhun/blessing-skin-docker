@@ -6,7 +6,7 @@ if [[ "$SKIP_UPDATE" != "true" ]]; then
 	# Update local repository
 	if [ ! -d upstream ]; then
 		git --bare init upstream
-		git --git-dir=upstream remote add origin "https://github.com/printempw/blessing-skin-server"
+		git --git-dir=upstream remote add origin "https://github.com/bs-community/blessing-skin-server"
 	fi
 	git --git-dir=upstream fetch --prune --prune-tags --tags origin "+refs/heads/*:refs/remotes/origin/*"
 fi
@@ -19,6 +19,7 @@ mkdir -p build/src
 git --git-dir=upstream --work-tree=build/src checkout "$revision" -- .
 
 cp -r src/* build/
+cp revision build/
 sudo docker build -t "$image" $DOCKER_OPTS build
 
 sudo docker tag "$image" "yushijinhun/blessing-skin-server:latest"
